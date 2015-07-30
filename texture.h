@@ -7,12 +7,12 @@ class texture
 {
 public:
 	texture(bool typep);
-	texture(texture& neighbour);
+	texture(bool typep, short int prefer);
 	bool created;
 	bool access;
 	bool ground;
 	float hight;
-	short int typeg;
+	int typeg;
 
 };
 
