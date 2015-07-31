@@ -9,13 +9,16 @@ texture::texture(bool typep)
 	if(typep==0){
 	created=0;
 	access=0;
+	ground=0;
+	hight=0;
 	}
 	else{
 	created=1;
+	access=1;
 	ground=rand()%2;
 	if(ground==1){
 		hight=rand()%100;
-		typeg=rand()%3;
+		typeg=(rand()%2)+1;
 	}else{
 		hight=0;
 		typeg=0;
@@ -66,4 +69,27 @@ texture::texture(bool typep, short int prefer)
 
 }
 
+texture::texture(bool createdT, bool accessT, bool groundT, int hightT, int typegT){
 
+	created=createdT;
+	access=accessT;
+	ground=groundT;
+	hight=hightT;
+	typeg=typegT;
+
+}
+
+texture::~texture(){
+
+
+}
+
+void texture::pokazParametry(){
+
+	cout<<created<<"	";
+	cout<<access<<"	";
+	cout<<ground<<"	";
+	cout<<hight<<"	";
+	cout<<typeg<<"	";
+
+}

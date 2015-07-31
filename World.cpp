@@ -3,147 +3,69 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string>
+#include <fstream>
 
 using namespace std;
+
 
 World::World(int x , int y)
 {
 	sz=x;
 	wy=y;
+	unsigned short int szMapy;
+	unsigned short int wyMapy;
+	szMapy=x;
+	wyMapy=y;
 
-	for(int i=0 ; i<wy+1 ; i++){
-		
-		if(sz<=500){
-			if(wy<=500){
-				place11[0][i] = new texture(false);
-				place11[sz][i] = new texture(false);
-			}
+    FILE *ms=fopen("mapaconf2.txt", "wb");
+	fwrite((char*)&szMapy,1,sizeof(int), ms);
+	fwrite((char*)&wyMapy,1,sizeof(int), ms);
 
-			if(wy>500){
-				if(i<=500){
-				place11[0][i] = new texture(false);
-				place11[sz][i] = new texture(false);
-				}else{
-				place21[0][i-500] = new texture(false);
-				place21[sz][i-500] = new texture(false);
-				}
-			}
-		}
+	for(int i=0; i<sz ; i++){
+		for(int j=0; j<wy ; j++){
+			
+	fwrite((char*)&i,1,sizeof(int), ms);
+	fwrite((char*)&j,1,sizeof(int), ms);
 
-		if(sz>500){		
-			if(wy<=500){
-				place11[0][i] = new texture(false);
-				place12[sz-500][i] = new texture(false);
-
-			}
-
-			if(wy>500){
-				if(i<=500){
-				place11[0][i] = new texture(false);
-				place12[sz-500][i] = new texture(false);
-				}else{
-				place21[0][i-500] = new texture(false);
-				place22[sz-500][i-500] = new texture(false);
-				}
-			}
-		}
-
-
-
-	}
-
-
-	for(int j=1 ; j<sz ; j++){
-	
-		if(sz<=500){
-			if(wy<=500){
-				place11[j][0] = new texture(false);
-				place11[j][wy] = new texture(false);
-			}
-
-			if(wy>500){
-				if(j<=500){
-				place11[j][0] = new texture(false);
-				place21[j][wy-500] = new texture(false);
-				}
-			}
-		}
-
-		if(sz>500){		
-			if(wy<=500){
-				
-				if(j<=500){
-				place11[j][0] = new texture(false);
-				place11[j][wy] = new texture(false);
-				}else{
-				place12[j-500][0] = new texture(false);
-				place12[j-500][wy] = new texture(false);
-				}
-			}
-			if(wy>500){
-				if(j<=500){
-				place11[j][0] = new texture(false);
-				place21[j][wy-500] = new texture(false);
-				}else{
-				place12[j-500][0] = new texture(false);
-				place22[j-500][wy-500] = new texture(false);
-				}
-			}
-		}
-	}
-
-	//int pref;
-/**
-	for(int i=1 ; i<sz ; i++){
-		//if(i<(sz/3)) pref=1;
-		//if(i>=(sz/3) && i<(sz/2)) pref=2;
-		//if(i>=(sz/2)) pref=3;
-		for(int j=1 ; j<wy ; j++){	
-			//place11[i][j] = new texture(true, pref);
-			place11[i][j] = new texture(true);
-			**/
-	for(int i=1 ; i<wy ; i++){
-		for(int j=1 ; j<sz ; j++){	
-
-			if(sz<=500){
-				if(wy<=500){
-					place11[i][j] = new texture(true);
-				}
-				if(wy>500){
-					if(i<=500)place11[i][j] = new texture(true);
-					if(i>500)place21[i-500][j] = new texture(true);
-				}
-			}
-
-			if(sz>500){
-				if(wy<=500){
-					if(j<=500)place11[i][j] = new texture(true);
-					if(j>500)place12[i][j-500] = new texture(true);
-				}
-				if(wy>500){
-					if(i<=500){
-					if(j<=500)place11[i][j] = new texture(true);
-					if(j>500)place12[i][j-500] = new texture(true);
-					}else{
-					if(j<=500)place21[i-500][j] = new texture(true);
-					if(j>500)place22[i-500][j-500] = new texture(true);
-					}
+			for(int pSz=0; pSz<100 ; pSz++){
+				for(int pWy=0; pWy<100 ; pWy++){
+						texture generText(true);
+						fwrite((char*)&pSz,1,sizeof(int), ms);
+						fwrite((char*)&pWy,1,sizeof(int), ms);
+						fwrite((char*)&generText.created,1,sizeof(bool), ms);
+						fwrite((char*)&generText.access,1,sizeof(bool), ms);
+						fwrite((char*)&generText.ground,1,sizeof(bool), ms);
+						fwrite((char*)&generText.hight,1,sizeof(int), ms);
+						fwrite((char*)&generText.typeg,1,sizeof(int), ms);
+						generText.~texture();
 				}
 			}
 
 		}
 	}
+	fclose(ms);
+}
+
+
+
+World::World(string name)
+{
 
 
 }
 
+
+
+
+
 char World::rysujMiejsce(int x, int y){
-	if(place11[x][y]->access==0){
+	if(place[0][0][x][y]->access==0){
 		return '#';
 	} else {
-		if(place11[x][y]->typeg==0) return ' ';
-		if(place11[x][y]->typeg==1) return '%';
-		if(place11[x][y]->typeg==2) return '*';
+		if(place[0][0][x][y]->typeg==0) return ' ';
+		if(place[0][0][x][y]->typeg==1) return '%';
+		if(place[0][0][x][y]->typeg==2) return '*';
 	}
 }
 
@@ -172,17 +94,17 @@ void World::render(int qual){
 
 			for(int wys=-qual ; wys<(qual+1) ; wys++){
 				for(int szer=-qual ; szer < (qual+1) ; szer++){
-					if(place11[i+wys][j+szer]->created==0){
-							if(place11[i][j]->typeg==0) w++;
-							if(place11[i][j]->typeg==1) z++;
-							if(place11[i][j]->typeg==2) l++;
-							high+=place11[i][j]->hight;
+					if(place[0][0][i+wys][j+szer]->created==0){
+							if(place[0][0][i][j]->typeg==0) w++;
+							if(place[0][0][i][j]->typeg==1) z++;
+							if(place[0][0][i][j]->typeg==2) l++;
+							//high+=place[0][0][i][j]->hight;
 							mod++;
 					}else{
-					if(place11[i+wys][j+szer]->typeg==0) w++;
-					if(place11[i+wys][j+szer]->typeg==1) z++;
-					if(place11[i+wys][j+szer]->typeg==2) l++;
-					high+=place11[i+wys][j+szer]->hight;
+					if(place[0][0][i+wys][j+szer]->typeg==0) w++;
+					if(place[0][0][i+wys][j+szer]->typeg==1) z++;
+					if(place[0][0][i+wys][j+szer]->typeg==2) l++;
+					//high+=place[0][0][i+wys][j+szer]->hight;
 					mod++;
 					}
 				}
@@ -191,12 +113,12 @@ void World::render(int qual){
 			los=rand()%mod;
 			los++;
 
-			if(los>0 && los<=w) place11[i][j]->typeg=0;			
-			if(los>w && los<=(w+z)) place11[i][j]->typeg=1;
-			if(los>(w+z) && los<=(w+z+l)) place11[i][j]->typeg=2;
-			place11[i][j]->hight=(high/mod);
+			if(los>0 && los<=w) place[0][0][i][j]->typeg=0;			
+			if(los>w && los<=(w+z)) place[0][0][i][j]->typeg=1;
+			if(los>(w+z) && los<=(w+z+l)) place[0][0][i][j]->typeg=2;
+		//	place[0][0][i][j]->hight=(high/mod);
 			
-			//cout<<i<<"."<<j<<" "<<place11[i][j]->hight<<"		";
+			//cout<<i<<"."<<j<<" "<<place[0][0][i][j]->hight<<"		";
 		}
 			//cout<<endl;
 	}
@@ -207,7 +129,7 @@ void World::render(int qual , short int choose){
 
 	for(int i=qual ; i<(sz+1-qual) ; i++){	
 		for(int j=qual ; j<(wy+1-qual) ; j++){	
-			if(place11[i][j]->typeg==choose){
+			if(place[0][0][i][j]->typeg==choose){
 			int los;
 			int w=0;
 			int z=0;
@@ -218,17 +140,17 @@ void World::render(int qual , short int choose){
 			for(int wys=-qual ; wys<(qual+1) ; wys++){
 				for(int szer=-qual ; szer < (qual+1) ; szer++){
 					
-					if(place11[i+wys][j+szer]->created==0){
-							if(place11[i][j]->typeg==0) w++;
-							if(place11[i][j]->typeg==1) z++;
-							if(place11[i][j]->typeg==2) l++;
-							high+=place11[i][j]->hight;
+					if(place[0][0][i+wys][j+szer]->created==0){
+							if(place[0][0][i][j]->typeg==0) w++;
+							if(place[0][0][i][j]->typeg==1) z++;
+							if(place[0][0][i][j]->typeg==2) l++;
+							//high+=place[0][0][i][j]->hight;
 							mod++;
 					}else{
-					if(place11[i+wys][j+szer]->typeg==0) w++;
-					if(place11[i+wys][j+szer]->typeg==1) z++;
-					if(place11[i+wys][j+szer]->typeg==2) l++;
-					high+=place11[i+wys][j+szer]->hight;
+					if(place[0][0][i+wys][j+szer]->typeg==0) w++;
+					if(place[0][0][i+wys][j+szer]->typeg==1) z++;
+					if(place[0][0][i+wys][j+szer]->typeg==2) l++;
+					//high+=place[0][0][i+wys][j+szer]->hight;
 					mod++;
 					}
 				}
@@ -237,10 +159,10 @@ void World::render(int qual , short int choose){
 			los=rand()%mod;
 			los++;
 
-			if(los>0 && los<=w) place11[i][j]->typeg=0;			
-			if(los>w && los<=(w+z)) place11[i][j]->typeg=1;
-			if(los>(w+z) && los<=(w+z+l)) place11[i][j]->typeg=2;
-			place11[i][j]->hight=(high/mod);
+			if(los>0 && los<=w) place[0][0][i][j]->typeg=0;			
+			if(los>w && los<=(w+z)) place[0][0][i][j]->typeg=1;
+			if(los>(w+z) && los<=(w+z+l)) place[0][0][i][j]->typeg=2;
+		//	place[0][0][i][j]->hight=(high/mod);
 			
 			
 			}
@@ -322,7 +244,7 @@ void World::drukujMape(){
 					type=getTextureType(tx,ty);
 					
 					if(type==0){					
-						color[0]=0;
+						color[0]=255;
                         color[1]=0;
                         color[2]=0;
 
@@ -352,32 +274,156 @@ void World::drukujMape(){
 
 
 int World::getTextureType(int x, int y){
-		int type;
+		int type=0;
 			if(x<=500){
 				if(y<=500){
-					type = place11[y][x]->typeg;
+					type = place[0][0][y][x]->typeg;
 				}
 				if(y>500){
-					if(y<=500)type = place11[y][x]->typeg;
-					if(y>500)type = place21[y-500][x]->typeg;
+					if(y<=500)type = place[0][0][y][x]->typeg;
+//					if(y>500)type = place21[y-500][x]->typeg;
 				}
 			}
 
 			if(x>500){
 				if(y<=500){
-					if(x<=500)type = place11[y][x]->typeg;
-					if(x>500)type = place12[y][x-500]->typeg;
+					if(x<=500)type = place[0][0][y][x]->typeg;
+//					if(x>500)type = place12[y][x-500]->typeg;
 				}
 				if(y>500){
 					if(x<=500){
-					if(x<=500)type = place11[y][x]->typeg;
-					if(x>500)type = place12[y][x-500]->typeg;
+					if(x<=500)type = place[0][0][y][x]->typeg;
+//					if(x>500)type = place12[y][x-500]->typeg;
 					}else{
-					if(x<=500)type = place21[y-500][x]->typeg;
-					if(x>500)type = place22[y-500][x-500]->typeg;
+//					if(x<=500)type = place21[y-500][x]->typeg;
+//					if(x>500)type = place22[y-500][x-500]->typeg;
 					}
 				}
 			}
 
 			return type;
+}
+
+void World::pokazPlik(){
+
+
+	   FILE *ms=fopen("mapaconf2.txt", "rb");
+
+		int bufSize=5;
+
+		int szMapy;
+		int wyMapy;
+
+		bool created;
+		bool access;
+		bool ground;
+		int hight;
+		int typeg;
+
+
+		{
+		char* temp = new char[sizeof(int)];
+		fread((char*)temp, 1 , sizeof(int) , ms);
+		int* number1 = (int*)(temp);
+		szMapy=*number1;
+		}
+		{
+		char* temp = new char[sizeof(int)];
+		fread((char*)temp, 1 , sizeof(int) , ms);
+		int* number1 = (int*)(temp);
+		wyMapy=*number1;
+		}
+
+		cout<<szMapy<<endl;
+		cout<<wyMapy<<endl;
+
+	for(int i=0; i<sz ; i++){
+		for(int j=0; j<wy ; j++){
+
+			{
+			char* temp = new char[sizeof(int)];
+			fread((char*)temp, 1 , sizeof(int) , ms);
+			int* number1 = (int*)(temp);
+			cout<<*number1<<endl;
+			}
+			{
+			char* temp = new char[sizeof(int)];
+			fread((char*)temp, 1 , sizeof(int) , ms);
+			int* number1 = (int*)(temp);
+			cout<<" "<<*number1<<"	";
+			}
+			for(int pSz=0; pSz<100 ; pSz++){
+				for(int pWy=0; pWy<100 ; pWy++){
+
+
+
+						{
+						char* temp = new char[sizeof(int)];
+						fread((char*)temp, 1 , sizeof(int) , ms);
+						int* number1 = (int*)(temp);
+						cout<<*number1<<" ";
+						}
+
+
+						{
+						char* temp = new char[sizeof(int)];
+						fread((char*)temp, 1 , sizeof(int) , ms);
+						int* number1 = (int*)(temp);
+						cout<<*number1<<"	";
+						}
+
+						{
+						char* temp = new char[sizeof(bool)];
+						fread((char*)temp, 1 , sizeof(bool) , ms);
+						bool* number2 = (bool*)(temp);
+						created = *number2;
+						}
+
+						{
+						char* temp = new char[sizeof(bool)];
+						fread((char*)temp, 1 , sizeof(bool) , ms);
+						bool* number2 = (bool*)(temp);
+						access = *number2;
+						}
+
+
+
+						{
+						char* temp = new char[sizeof(bool)];
+						fread((char*)temp, 1 , sizeof(bool) , ms);
+						bool* number2 = (bool*)(temp);
+						ground = *number2;
+						}
+
+
+
+						{
+						char* temp = new char[sizeof(int)];
+						fread((char*)temp, 1 , sizeof(int) , ms);
+						int* number1 = (int*)(temp);
+						hight = *number1;
+						}
+
+
+						{
+						char* temp = new char[sizeof(int)];
+						fread((char*)temp, 1 , sizeof(int) , ms);
+						int* number1 = (int*)(temp);
+						typeg = *number1;
+						}
+
+
+						texture generText(created, access, ground, hight, typeg);
+						generText.pokazParametry();
+						generText.~texture();
+				}
+			}
+
+		}
+	}
+
+
+		fclose(ms);
+
+
 }

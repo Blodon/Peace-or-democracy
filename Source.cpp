@@ -9,7 +9,7 @@ int main(){
 
 
 
-	//srand(time(NULL));
+	srand(time(NULL));
 	int x,y,qual;
 
 	cin>>x;
@@ -23,7 +23,14 @@ int main(){
 	//swiat.rysujMape();
 	int rend;
 	short int whatToRender;
-	swiat.drukujMape();
+
+		cout<<"Gotowe"<<endl;
+		getch();
+		swiat.pokazPlik();
+
+
+
+	//swiat.drukujMape();
 	cout<<"Podaj co renderowac 0-woda 1-ziemia 2-las"<<endl;
 	cin>>whatToRender;
 	
@@ -34,10 +41,10 @@ int main(){
 	cout<<"Loading..."<<endl;
 	for(int i=0 ; i<rend ; i++){
 		if(whatToRender>=3){
-			swiat.render(qual);
+			//swiat.render(qual);
 		}else swiat.render(qual,whatToRender);
 	}
-	swiat.drukujMape();
+	//swiat.drukujMape();
 	cout<<"Ready!"<<endl;
 	}
 
