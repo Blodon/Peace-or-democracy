@@ -11,9 +11,10 @@ class World
 	texture* place[2][2][99][99];
 
 	public:
-	World(int x , int y);
+	World(string name, int x , int y);
 	World(string name);
-	int sz,wy;
+	int sz, wy, cSz, cWy;
+	string mapName;
 
 	char rysujMiejsce(int x , int y);
 	void rysujMape();
@@ -22,6 +23,9 @@ class World
 	void drukujMape();
 	int getTextureType(int x, int y);
 	void pokazPlik();
+	void setZeroPosition();
+	void catchTextures();
+	void loadArea();
 
 };
 

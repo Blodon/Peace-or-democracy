@@ -9,7 +9,7 @@
 using namespace std;
 
 
-World::World(int x , int y)
+World::World(string name, int x , int y)
 {
 	sz=x;
 	wy=y;
@@ -18,7 +18,10 @@ World::World(int x , int y)
 	szMapy=x;
 	wyMapy=y;
 
-    FILE *ms=fopen("mapaconf2.txt", "wb");
+	mapName = name;
+	mapName += ".txt";
+
+    FILE *ms=fopen( mapName.c_str() , "wb");
 	fwrite((char*)&szMapy,1,sizeof(int), ms);
 	fwrite((char*)&wyMapy,1,sizeof(int), ms);
 
@@ -45,6 +48,10 @@ World::World(int x , int y)
 		}
 	}
 	fclose(ms);
+
+	cSz=0;
+	cWy=0;
+	setZeroPosition();
 }
 
 
@@ -52,6 +59,32 @@ World::World(int x , int y)
 World::World(string name)
 {
 
+	mapName = name;
+	mapName += ".txt";
+
+	FILE *ms=fopen( mapName.c_str() , "rb");
+
+
+		{
+		char* temp = new char[sizeof(int)];
+		fread((char*)temp, 1 , sizeof(int) , ms);
+		int* number1 = (int*)(temp);
+		sz=*number1;
+		}
+		{
+		char* temp = new char[sizeof(int)];
+		fread((char*)temp, 1 , sizeof(int) , ms);
+		int* number1 = (int*)(temp);
+		wy=*number1;
+		}
+
+		cout<<"szerokosc: "<<sz<<endl;
+		cout<<"wysokosc: "<<wy<<endl;
+
+		
+		cSz=0;
+		cWy=0;
+		setZeroPosition();
 
 }
 
@@ -199,13 +232,13 @@ void World::drukujMape(){
 
         FILE *fp=fopen("mapa.bmp", "wb");
         bfType= (znak1) | (znak2 << 8); //'BM'
-        bfSize=54+((sz*wy)*24);
+        bfSize=54+(((sz*100)*(wy*100))*24);
         bfReserved1 = 0;
         bfReserved1 = 0;
         bfOffBits=54;//1078;
         biSize=40;
-        biWidth=sz;
-        biHeight=wy;
+        biWidth=(sz*100);
+        biHeight=(wy*100);
         biPlanes=1;
         biBitCount=24;
         biCompression = 0;
@@ -235,73 +268,57 @@ void World::drukujMape(){
         unsigned long piksel = 0 * 256^2 + 0 * 256 + 0;
         //cout<<sizeof(piksel);
 
-        for(int tx=0; tx<sz;tx++)
-        {
-                for(int ty=0; ty<wy;ty++)
-                { 
+        for(int tx=0; tx<(sz+1); tx++, cSz++){
+			for(int ty=0; ty<(wy+1);ty++, cWy++){ 
+				
+				loadArea();
 
-					int type;
-					type=getTextureType(tx,ty);
+				for(int i=0; i<100; i++){
+					for(int j=0; j<100; j++){
+
+								int type;
+								type=getTextureType(i,j);
 					
-					if(type==0){					
-						color[0]=255;
-                        color[1]=0;
-                        color[2]=0;
+								if(type==0){					
+									color[0]=255;
+									color[1]=0;
+									color[2]=0;
 
-					}else if(type==0){
-						color[0]=255;
-                        color[1]=0;
-                        color[2]=0;
+								}else if(type==0){
+									color[0]=255;
+									color[1]=0;
+									color[2]=0;
 
-					}else if(type==1){
-						color[0]=0;
-                        color[1]=200;
-                        color[2]=15;
+								}else if(type==1){
+									color[0]=0;
+									color[1]=200;
+									color[2]=15;
 
-					}else if(type==2){
-						color[0]=100;
-                        color[1]=200;
-                        color[2]=100;
+								}else if(type==2){
+									color[0]=100;
+									color[1]=200;
+									color[2]=100;
+								}
+							fwrite((char*)color, 1, sizeof(color), fp);
 					}
-			
-                        fwrite((char*)color, 1, sizeof(color), fp);
-                }
+				}
+			}
         }
         fclose(fp);
 
+		cSz=0;
+		cWy=0;
+		loadArea();
 
 }
 
 
 int World::getTextureType(int x, int y){
 		int type=0;
-			if(x<=500){
-				if(y<=500){
-					type = place[0][0][y][x]->typeg;
-				}
-				if(y>500){
-					if(y<=500)type = place[0][0][y][x]->typeg;
-//					if(y>500)type = place21[y-500][x]->typeg;
-				}
-			}
 
-			if(x>500){
-				if(y<=500){
-					if(x<=500)type = place[0][0][y][x]->typeg;
-//					if(x>500)type = place12[y][x-500]->typeg;
-				}
-				if(y>500){
-					if(x<=500){
-					if(x<=500)type = place[0][0][y][x]->typeg;
-//					if(x>500)type = place12[y][x-500]->typeg;
-					}else{
-//					if(x<=500)type = place21[y-500][x]->typeg;
-//					if(x>500)type = place22[y-500][x-500]->typeg;
-					}
-				}
-			}
+		type=place[0][0][x][y]->typeg;
 
-			return type;
+		return type;
 }
 
 void World::pokazPlik(){
@@ -426,4 +443,146 @@ void World::pokazPlik(){
 		fclose(ms);
 
 
+}
+
+
+void World::catchTextures(){
+
+	
+	   FILE *ms=fopen("mapaconf2.txt", "rb");
+
+		int szMapy;
+		int wyMapy;
+
+		bool created;
+		bool access;
+		bool ground;
+		int hight;
+		int typeg;
+
+
+		{
+		char* temp = new char[sizeof(int)];
+		fread((char*)temp, 1 , sizeof(int) , ms);
+		int* number1 = (int*)(temp);
+		szMapy=*number1;
+		}
+		{
+		char* temp = new char[sizeof(int)];
+		fread((char*)temp, 1 , sizeof(int) , ms);
+		int* number1 = (int*)(temp);
+		wyMapy=*number1;
+		}
+
+	for(int i=0; i<sz ; i++){
+		for(int j=0; j<wy ; j++){
+
+			{
+			char* temp = new char[sizeof(int)];
+			fread((char*)temp, 1 , sizeof(int) , ms);
+			int* number1 = (int*)(temp);
+			//cout<<*number1<<endl;
+			}
+			{
+			char* temp = new char[sizeof(int)];
+			fread((char*)temp, 1 , sizeof(int) , ms);
+			int* number1 = (int*)(temp);
+			//cout<<" "<<*number1<<"	";
+			}
+			for(int pSz=0; pSz<100 ; pSz++){
+				for(int pWy=0; pWy<100 ; pWy++){
+
+
+
+						{
+						char* temp = new char[sizeof(int)];
+						fread((char*)temp, 1 , sizeof(int) , ms);
+						int* number1 = (int*)(temp);
+						//cout<<*number1<<" ";
+						}
+
+
+						{
+						char* temp = new char[sizeof(int)];
+						fread((char*)temp, 1 , sizeof(int) , ms);
+						int* number1 = (int*)(temp);
+						//cout<<*number1<<"	";
+						}
+
+						{
+						char* temp = new char[sizeof(bool)];
+						fread((char*)temp, 1 , sizeof(bool) , ms);
+						bool* number2 = (bool*)(temp);
+						created = *number2;
+						}
+
+						{
+						char* temp = new char[sizeof(bool)];
+						fread((char*)temp, 1 , sizeof(bool) , ms);
+						bool* number2 = (bool*)(temp);
+						access = *number2;
+						}
+
+
+
+						{
+						char* temp = new char[sizeof(bool)];
+						fread((char*)temp, 1 , sizeof(bool) , ms);
+						bool* number2 = (bool*)(temp);
+						ground = *number2;
+						}
+
+
+
+						{
+						char* temp = new char[sizeof(int)];
+						fread((char*)temp, 1 , sizeof(int) , ms);
+						int* number1 = (int*)(temp);
+						hight = *number1;
+						}
+
+
+						{
+						char* temp = new char[sizeof(int)];
+						fread((char*)temp, 1 , sizeof(int) , ms);
+						int* number1 = (int*)(temp);
+						typeg = *number1;
+						}
+
+						if(i==cSz && j==cWy){
+							place[0][0][pSz][pWy] = new texture(created, access, ground, hight, typeg);
+						}else{
+						texture generText(created, access, ground, hight, typeg);
+						generText.~texture();
+						}
+
+				}
+			}
+
+		}
+	}
+		fclose(ms);
+
+}
+
+
+
+
+
+
+void World::loadArea(){
+
+	for(int i=0; i<100; i++){
+		for(int j=0; j<100; j++){
+			place[0][0][i][j]->~texture();
+		}
+	}
+
+	catchTextures();
+
+}
+
+
+void World::setZeroPosition(){	
+	catchTextures();
 }

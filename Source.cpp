@@ -2,35 +2,48 @@
 #include <conio.h>
 #include "World.h"
 #include <time.h>
+#include <string>
 
 using namespace std;
 
 int main(){
 
-
-
 	srand(time(NULL));
 	int x,y,qual;
+	string mapn;
+	int wyb;
 
-	cin>>x;
-	cin>>y;
+	cout<<"1-Stworz nowy swiat\n2-Wczytaj swiat"<<endl;
+	cin>>wyb;
 
-	cout<<"Nowy swiat"<<endl;
-	World swiat(x,y);
+		if(wyb==1){
+			cin>>x;
+			cin>>y;
+			cout<<"Nowy swiat"<<endl;
+		}
+		if(wyb==1 || wyb==2){
+			cout<<"Podaj nazwe swiata"<<endl;
+			cin>> mapn;
+		}
+
+		//World swiat(mapn, x,y);
+		World swiat(mapn);
+		
+	
 
 	for(;;){
-
-	//swiat.rysujMape();
+	
 	int rend;
 	short int whatToRender;
 
-		cout<<"Gotowe"<<endl;
+		cout<<"Drukowac?"<<endl;
 		getch();
-		swiat.pokazPlik();
+	//	swiat.pokazPlik();
 
 
+		swiat.drukujMape();
 
-	//swiat.drukujMape();
+		/**
 	cout<<"Podaj co renderowac 0-woda 1-ziemia 2-las"<<endl;
 	cin>>whatToRender;
 	
@@ -45,6 +58,9 @@ int main(){
 		}else swiat.render(qual,whatToRender);
 	}
 	//swiat.drukujMape();
+
+	**/
+
 	cout<<"Ready!"<<endl;
 	}
 
